@@ -43,7 +43,6 @@ Proyek dikerjakan oleh tiga anggota, yaitu satu Backend Developer dan dua Fronte
 * Merancang halaman Report Detail.
 * Merancang halaman dan form Report Submission.
 * Menentukan field input dan validasi form.
-* Menyiapkan mock data yang konsisten dengan API Contract.
 * Merancang image placeholder dan tampilan informasi kontak.
 * Menyusun dokumentasi halaman serta alur penggunaan website.
 
