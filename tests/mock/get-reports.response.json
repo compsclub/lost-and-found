@@ -1,0 +1,174 @@
+{
+  "data": [
+    {
+      "id": "10000000-0000-4000-8000-000000000001",
+      "reportType": "LOST",
+      "itemName": "Charger laptop ASUS",
+      "category": {
+        "id": "11111111-1111-4111-8111-111111111111",
+        "slug": "electronics",
+        "name": "Elektronik"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000001",
+        "slug": "fasilkom-a-building",
+        "name": "Gedung A Fasilkom UI"
+      },
+      "locationDetail": "Lantai 1, dekat stop kontak ruang A101",
+      "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/charger-laptop-asus.jpg",
+      "createdAt": "2026-11-16T09:10:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000002",
+      "reportType": "FOUND",
+      "itemName": "KTM atas nama Budi Pratama",
+      "category": {
+        "id": "22222222-2222-4222-8222-222222222222",
+        "slug": "id-card",
+        "name": "Kartu identitas"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000001",
+        "slug": "fasilkom-a-building",
+        "name": "Gedung A Fasilkom UI"
+      },
+      "locationDetail": "Lorong lantai 2",
+      "imageUrl": null,
+      "createdAt": "2026-11-16T08:45:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000003",
+      "reportType": "LOST",
+      "itemName": "Tumbler hitam",
+      "category": {
+        "id": "33333333-3333-4333-8333-333333333333",
+        "slug": "bottle",
+        "name": "Botol minum"
+      },
+      "location": {
+        "id": "b1000000-0000-4000-8000-000000000006",
+        "slug": "other",
+        "name": "Lokasi lainnya"
+      },
+      "locationDetail": "Kantin Fakultas Teknik, dekat pintu timur",
+      "imageUrl": null,
+      "createdAt": "2026-11-16T08:15:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000004",
+      "reportType": "FOUND",
+      "itemName": "Kunci motor Honda",
+      "category": {
+        "id": "44444444-4444-4444-8444-444444444444",
+        "slug": "keys",
+        "name": "Kunci"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000002",
+        "slug": "fasilkom-b-building",
+        "name": "Gedung B Fasilkom UI"
+      },
+      "locationDetail": "Bangku dekat lobi",
+      "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/kunci-motor-honda.jpg",
+      "createdAt": "2026-11-15T15:00:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000005",
+      "reportType": "LOST",
+      "itemName": "Ransel abu-abu",
+      "category": {
+        "id": "55555555-5555-4555-8555-555555555555",
+        "slug": "bag",
+        "name": "Tas"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000003",
+        "slug": "fasilkom-library",
+        "name": "Perpustakaan Fasilkom UI"
+      },
+      "locationDetail": null,
+      "imageUrl": null,
+      "createdAt": "2026-11-15T11:30:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000006",
+      "reportType": "FOUND",
+      "itemName": "Payung lipat biru",
+      "category": {
+        "id": "88888888-8888-4888-8888-888888888888",
+        "slug": "other",
+        "name": "Lainnya"
+      },
+      "location": {
+        "id": "b1000000-0000-4000-8000-000000000006",
+        "slug": "other",
+        "name": "Lokasi lainnya"
+      },
+      "locationDetail": "Halte UI arah Stasiun Pondok Cina",
+      "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/payung-lipat-biru.jpg",
+      "createdAt": "2026-11-14T13:00:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000007",
+      "reportType": "LOST",
+      "itemName": "Flash drive SanDisk 32 GB",
+      "category": {
+        "id": "11111111-1111-4111-8111-111111111111",
+        "slug": "electronics",
+        "name": "Elektronik"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000004",
+        "slug": "fasilkom-canteen",
+        "name": "Kantin Fasilkom UI"
+      },
+      "locationDetail": null,
+      "imageUrl": null,
+      "createdAt": "2026-11-14T09:15:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000008",
+      "reportType": "FOUND",
+      "itemName": "Jaket himpunan biru tua",
+      "category": {
+        "id": "66666666-6666-4666-8666-666666666666",
+        "slug": "clothing",
+        "name": "Pakaian"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000005",
+        "slug": "fasilkom-parking",
+        "name": "Area parkir Fasilkom UI"
+      },
+      "locationDetail": "Dekat parkiran motor sisi timur",
+      "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/jaket-himpunan-biru.jpg",
+      "createdAt": "2026-11-13T17:10:00.000Z"
+    },
+    {
+      "id": "10000000-0000-4000-8000-000000000009",
+      "reportType": "LOST",
+      "itemName": "Notebook Struktur Data",
+      "category": {
+        "id": "77777777-7777-4777-8777-777777777777",
+        "slug": "stationery",
+        "name": "Alat tulis"
+      },
+      "location": {
+        "id": "a1000000-0000-4000-8000-000000000003",
+        "slug": "fasilkom-library",
+        "name": "Perpustakaan Fasilkom UI"
+      },
+      "locationDetail": "Meja nomor 12 lantai 2",
+      "imageUrl": null,
+      "createdAt": "2026-11-13T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 12,
+    "totalItems": 9,
+    "totalPages": 1,
+    "hasNextPage": false,
+    "hasPreviousPage": false
+  }
+}

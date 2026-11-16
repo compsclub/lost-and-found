@@ -1,0 +1,227 @@
+[
+  {
+    "id": "10000000-0000-4000-8000-000000000001",
+    "reportType": "LOST",
+    "itemName": "Charger laptop ASUS",
+    "category": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "slug": "electronics",
+      "name": "Elektronik"
+    },
+    "categoryOther": null,
+    "description": "Charger ASUS 65W berwarna hitam dengan kabel USB-C. Terakhir digunakan untuk mengisi daya laptop dekat stop kontak.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "slug": "fasilkom-a-building",
+      "name": "Gedung A Fasilkom UI"
+    },
+    "locationDetail": "Lantai 1, dekat stop kontak ruang A101",
+    "occurredAt": "2026-11-16T06:45:00.000Z",
+    "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/charger-laptop-asus.jpg",
+    "publicContact": {
+      "method": "WHATSAPP",
+      "value": "+6281234567001"
+    },
+    "createdAt": "2026-11-16T09:10:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000002",
+    "reportType": "FOUND",
+    "itemName": "KTM atas nama Budi Pratama",
+    "category": {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "slug": "id-card",
+      "name": "Kartu identitas"
+    },
+    "categoryOther": null,
+    "description": "KTM ditemukan di lorong lantai dua. Pemilik dapat menghubungi penemu untuk konfirmasi ciri kartu sebelum pengambilan.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "slug": "fasilkom-a-building",
+      "name": "Gedung A Fasilkom UI"
+    },
+    "locationDetail": "Lorong lantai 2",
+    "occurredAt": "2026-11-16T08:20:00.000Z",
+    "imageUrl": null,
+    "publicContact": {
+      "method": "EMAIL",
+      "value": "penemu.ktm@example.com"
+    },
+    "createdAt": "2026-11-16T08:45:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "reportType": "LOST",
+    "itemName": "Tumbler hitam",
+    "category": {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "slug": "bottle",
+      "name": "Botol minum"
+    },
+    "categoryOther": null,
+    "description": "Tumbler hitam berkapasitas 600 ml dengan stiker kucing pada bagian bawah.",
+    "location": {
+      "id": "b1000000-0000-4000-8000-000000000006",
+      "slug": "other",
+      "name": "Lokasi lainnya"
+    },
+    "locationDetail": "Kantin Fakultas Teknik, dekat pintu timur",
+    "occurredAt": "2026-11-16T07:30:00.000Z",
+    "imageUrl": null,
+    "publicContact": {
+      "method": "PHONE",
+      "value": "+6281234567003"
+    },
+    "createdAt": "2026-11-16T08:15:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000004",
+    "reportType": "FOUND",
+    "itemName": "Kunci motor Honda",
+    "category": {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "slug": "keys",
+      "name": "Kunci"
+    },
+    "categoryOther": null,
+    "description": "Satu set kunci motor Honda dengan gantungan kunci berbentuk roket berwarna merah.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "slug": "fasilkom-b-building",
+      "name": "Gedung B Fasilkom UI"
+    },
+    "locationDetail": "Bangku dekat lobi",
+    "occurredAt": "2026-11-15T14:10:00.000Z",
+    "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/kunci-motor-honda.jpg",
+    "publicContact": {
+      "method": "WHATSAPP",
+      "value": "+6281234567004"
+    },
+    "createdAt": "2026-11-15T15:00:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000005",
+    "reportType": "LOST",
+    "itemName": "Ransel abu-abu",
+    "category": {
+      "id": "55555555-5555-4555-8555-555555555555",
+      "slug": "bag",
+      "name": "Tas"
+    },
+    "categoryOther": null,
+    "description": "Ransel abu-abu ukuran sedang dengan gantungan kunci beruang. Tidak berisi perangkat elektronik.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "slug": "fasilkom-library",
+      "name": "Perpustakaan Fasilkom UI"
+    },
+    "locationDetail": null,
+    "occurredAt": "2026-11-15T10:00:00.000Z",
+    "imageUrl": null,
+    "publicContact": {
+      "method": "EMAIL",
+      "value": "pemilik.ransel@example.com"
+    },
+    "createdAt": "2026-11-15T11:30:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000006",
+    "reportType": "FOUND",
+    "itemName": "Payung lipat biru",
+    "category": {
+      "id": "88888888-8888-4888-8888-888888888888",
+      "slug": "other",
+      "name": "Lainnya"
+    },
+    "categoryOther": "Payung",
+    "description": "Payung lipat berwarna biru tua dengan tali pegangan hitam dan logo kecil pada bagian dalam.",
+    "location": {
+      "id": "b1000000-0000-4000-8000-000000000006",
+      "slug": "other",
+      "name": "Lokasi lainnya"
+    },
+    "locationDetail": "Halte UI arah Stasiun Pondok Cina",
+    "occurredAt": "2026-11-14T12:25:00.000Z",
+    "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/payung-lipat-biru.jpg",
+    "publicContact": {
+      "method": "PHONE",
+      "value": "+6281234567006"
+    },
+    "createdAt": "2026-11-14T13:00:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000007",
+    "reportType": "LOST",
+    "itemName": "Flash drive SanDisk 32 GB",
+    "category": {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "slug": "electronics",
+      "name": "Elektronik"
+    },
+    "categoryOther": null,
+    "description": "Flash drive USB berwarna hitam-merah dengan label nama kecil pada sisi belakang.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "slug": "fasilkom-canteen",
+      "name": "Kantin Fasilkom UI"
+    },
+    "locationDetail": null,
+    "occurredAt": "2026-11-14T08:40:00.000Z",
+    "imageUrl": null,
+    "publicContact": {
+      "method": "WHATSAPP",
+      "value": "+6281234567007"
+    },
+    "createdAt": "2026-11-14T09:15:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000008",
+    "reportType": "FOUND",
+    "itemName": "Jaket himpunan biru tua",
+    "category": {
+      "id": "66666666-6666-4666-8666-666666666666",
+      "slug": "clothing",
+      "name": "Pakaian"
+    },
+    "categoryOther": null,
+    "description": "Jaket biru tua ukuran M dengan bordir himpunan pada dada kiri dan resleting perak.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "slug": "fasilkom-parking",
+      "name": "Area parkir Fasilkom UI"
+    },
+    "locationDetail": "Dekat parkiran motor sisi timur",
+    "occurredAt": "2026-11-13T16:20:00.000Z",
+    "imageUrl": "https://res.cloudinary.com/lost-and-found-demo/image/upload/v1/reports/jaket-himpunan-biru.jpg",
+    "publicContact": {
+      "method": "EMAIL",
+      "value": "penemu.jaket@example.com"
+    },
+    "createdAt": "2026-11-13T17:10:00.000Z"
+  },
+  {
+    "id": "10000000-0000-4000-8000-000000000009",
+    "reportType": "LOST",
+    "itemName": "Notebook Struktur Data",
+    "category": {
+      "id": "77777777-7777-4777-8777-777777777777",
+      "slug": "stationery",
+      "name": "Alat tulis"
+    },
+    "categoryOther": null,
+    "description": "Buku catatan spiral hitam berisi tulisan tangan materi Struktur Data pada beberapa halaman awal.",
+    "location": {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "slug": "fasilkom-library",
+      "name": "Perpustakaan Fasilkom UI"
+    },
+    "locationDetail": "Meja nomor 12 lantai 2",
+    "occurredAt": "2026-11-13T09:30:00.000Z",
+    "imageUrl": null,
+    "publicContact": {
+      "method": "PHONE",
+      "value": "+6281234567009"
+    },
+    "createdAt": "2026-11-13T10:00:00.000Z"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "reportType": "LOST",
+  "itemName": "Tumbler hitam",
+  "categoryId": "33333333-3333-4333-8333-333333333333",
+  "categoryOther": null,
+  "description": "Tumbler hitam berkapasitas 600 ml dengan stiker kucing pada bagian bawah.",
+  "locationId": "a1000000-0000-4000-8000-000000000001",
+  "locationDetail": "Lantai 2, ruang A206",
+  "occurredAt": "2026-11-16T05:00:00.000Z",
+  "contact": {
+    "method": "WHATSAPP",
+    "value": "+6281234567010"
+  }
+}

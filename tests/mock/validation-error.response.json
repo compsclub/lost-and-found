@@ -1,0 +1,16 @@
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Some input fields are invalid.",
+    "details": [
+      {
+        "field": "itemName",
+        "message": "Must be between 3 and 100 characters."
+      },
+      {
+        "field": "locationDetail",
+        "message": "Must be provided when the selected location is other."
+      }
+    ]
+  }
+}

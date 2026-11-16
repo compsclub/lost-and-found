@@ -1,0 +1,14 @@
+{
+  "reportType": "FOUND",
+  "itemName": "Payung lipat biru",
+  "categoryId": "88888888-8888-4888-8888-888888888888",
+  "categoryOther": "Payung",
+  "description": "Payung lipat biru tua ditemukan dalam keadaan kering dan masih dapat digunakan.",
+  "locationId": "b1000000-0000-4000-8000-000000000006",
+  "locationDetail": "Halte UI arah Stasiun Pondok Cina",
+  "occurredAt": "2026-11-16T08:00:00.000Z",
+  "contact": {
+    "method": "EMAIL",
+    "value": "penemu.payung@example.com"
+  }
+}

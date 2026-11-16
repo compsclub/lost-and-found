@@ -1,0 +1,27 @@
+{
+  "data": {
+    "id": "10000000-0000-4000-8000-000000000003",
+    "reportType": "LOST",
+    "itemName": "Tumbler hitam",
+    "category": {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "slug": "bottle",
+      "name": "Botol minum"
+    },
+    "categoryOther": null,
+    "description": "Tumbler hitam berkapasitas 600 ml dengan stiker kucing pada bagian bawah.",
+    "location": {
+      "id": "b1000000-0000-4000-8000-000000000006",
+      "slug": "other",
+      "name": "Lokasi lainnya"
+    },
+    "locationDetail": "Kantin Fakultas Teknik, dekat pintu timur",
+    "occurredAt": "2026-11-16T07:30:00.000Z",
+    "imageUrl": null,
+    "publicContact": {
+      "method": "PHONE",
+      "value": "+6281234567003"
+    },
+    "createdAt": "2026-11-16T08:15:00.000Z"
+  }
+}
