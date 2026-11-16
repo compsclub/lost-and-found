@@ -12,6 +12,12 @@ Website ini dikembangkan menggunakan React.js untuk Frontend, Node.js dan Expres
 * Anggota 2 / NPM sebagai **Frontend Developer 1**
 * Anggota 3 / NPM sebagai **Frontend Developer 2**
 
+## Dokumentasi Direktori
+
+* `docs/` buat kumpulan dokumentasi-dokumentasi proyek.
+* `core/` buat code backend, database, dll.
+* `src/` buat code frontend, UI/UX, dll.
+
 ## Pembagian Tugas
 
 Proyek dikerjakan oleh tiga anggota, yaitu satu Backend Developer dan dua Frontend Developer.
