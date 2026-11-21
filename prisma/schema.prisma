@@ -1,0 +1,85 @@
+// Prisma schema for the Lost and Found Website.
+// Mirrors docs/database-design.md: snake_case tables and columns, UUID primary
+// keys, timestamptz columns, and reference tables for categories and locations.
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+}
+
+enum ReportType {
+    LOST
+    FOUND
+
+    @@map("report_type")
+}
+
+enum ContactMethod {
+    EMAIL
+    PHONE
+    WHATSAPP
+
+    @@map("contact_method")
+}
+
+model Category {
+    id        String   @id @default(uuid()) @db.Uuid
+    slug      String   @unique @db.VarChar(50)
+    name      String   @unique @db.VarChar(100)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+    reports   Report[]
+
+    @@map("categories")
+}
+
+model Location {
+    id        String   @id @default(uuid()) @db.Uuid
+    slug      String   @unique @db.VarChar(80)
+    name      String   @unique @db.VarChar(150)
+    createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+    reports   Report[]
+
+    @@map("locations")
+}
+
+model Report {
+    id             String      @id @default(uuid()) @db.Uuid
+    reportType     ReportType  @map("report_type")
+    itemName       String      @map("item_name") @db.VarChar(100)
+    categoryId     String      @map("category_id") @db.Uuid
+    categoryOther  String?     @map("category_other") @db.VarChar(100)
+    description    String      @db.Text
+    locationId     String      @map("location_id") @db.Uuid
+    locationDetail String?     @map("location_detail") @db.VarChar(200)
+    occurredAt     DateTime?   @map("occurred_at") @db.Timestamptz(6)
+    imageUrl       String?     @map("image_url") @db.Text
+    imagePublicId  String?     @unique @map("image_public_id") @db.VarChar(255)
+    createdAt      DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt      DateTime    @updatedAt @map("updated_at") @db.Timestamptz(6)
+    category       Category    @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+    location       Location    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+    contact        ReportContact?
+
+    @@index([createdAt(sort: Desc)], map: "reports_created_at_idx")
+    @@index([reportType, createdAt(sort: Desc)], map: "reports_type_created_at_idx")
+    @@index([categoryId, createdAt(sort: Desc)], map: "reports_category_created_at_idx")
+    @@index([locationId, createdAt(sort: Desc)], map: "reports_location_created_at_idx")
+    @@map("reports")
+}
+
+model ReportContact {
+    id        String        @id @default(uuid()) @db.Uuid
+    reportId  String        @unique @map("report_id") @db.Uuid
+    method    ContactMethod
+    value     String        @db.VarChar(255)
+    createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+    updatedAt DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+    report    Report        @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+    @@map("report_contacts")
+}

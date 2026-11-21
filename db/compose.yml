@@ -1,0 +1,23 @@
+# Development database for the Lost and Found project.
+# Run from this directory: docker compose up -d
+services:
+    postgres:
+        image: postgres:17-alpine
+        container_name: lost-and-found-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: lostfound
+            POSTGRES_PASSWORD: lostfound_dev
+            POSTGRES_DB: lostfound
+        ports:
+            - "127.0.0.1:55432:5432"
+        volumes:
+            - lost-and-found-db-data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U lostfound -d lostfound"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
+
+volumes:
+    lost-and-found-db-data:
