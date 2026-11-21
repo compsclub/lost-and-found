@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fasilkom UI Lost &amp; Found</title>
+  <meta name="description" content="Public lost and found reports for the Faculty of Computer Science, Universitas Indonesia.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+
+  <main>
+    <!-- LIST VIEW -->
+    <section id="view-list" class="view" hidden>
+      <div class="hero">
+        <div class="container hero-inner">
+          <div>
+            <h1>Lost and Found</h1>
+            <p class="hero-sub">Browse public reports from around the Fasilkom buildings, or post your own so items can find their way back to their owners.</p>
+            <div class="hero-actions">
+              <a href="#/new?type=lost" class="btn btn-red">I lost an item</a>
+              <a href="#/new?type=found" class="btn btn-light">I found an item</a>
+            </div>
+          </div>
+          <div class="hero-stats" aria-label="Report statistics">
+            <div class="stat"><span id="stat-lost" class="stat-num">0</span><span class="stat-label">Lost</span></div>
+            <div class="stat"><span id="stat-found" class="stat-num">0</span><span class="stat-label">Found</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <form id="filters" class="filters" role="search" autocomplete="off" onsubmit="return false">
+          <div class="field field-search">
+            <label for="f-search">Search by item name</label>
+            <input type="search" id="f-search" placeholder="e.g. black wallet, laptop charger…">
+          </div>
+          <div class="field">
+            <label for="f-type">Report type</label>
+            <select id="f-type">
+              <option value="">All types</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-category">Category</label>
+            <select id="f-category"><option value="">All categories</option></select>
+          </div>
+          <div class="field">
+            <label for="f-location">Location</label>
+            <select id="f-location"><option value="">All locations</option></select>
+          </div>
+          <button type="button" id="f-reset" class="btn btn-ghost btn-sm">Reset</button>
+        </form>
+
+        <div class="results-bar">
+          <p id="result-count" class="result-count" aria-live="polite"></p>
+        </div>
+
+        <div id="report-grid" class="grid"></div>
+        <div id="empty-state" class="empty" hidden>
+          <h2>No reports match your search</h2>
+          <p>Try a different keyword or clear the filters. If the item isn't listed yet, you can post a report.</p>
+          <a href="#/new" class="btn btn-blue">Report an item</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETAIL VIEW -->
+    <section id="view-detail" class="view" hidden>
+      <div class="container narrow">
+        <a href="#/" class="back-link">← Back to all reports</a>
+        <div id="detail-content"></div>
+      </div>
+    </section>
+
+    <!-- FORM VIEW -->
+    <section id="view-form" class="view" hidden>
+      <div class="container narrow">
+        <a href="#/" class="back-link">← Back to all reports</a>
+        <div class="card form-card">
+          <h1 class="form-title">Submit a report</h1>
+          <p class="muted">Reports are public. Only the contact method you choose below will be shown to visitors.</p>
+
+          <form id="report-form" novalidate>
+            <fieldset class="type-toggle">
+              <legend>What happened?</legend>
+              <label class="type-option type-lost">
+                <input type="radio" name="type" value="lost" checked>
+                <span><strong>I lost an item</strong><small>Looking for something I misplaced</small></span>
+              </label>
+              <label class="type-option type-found">
+                <input type="radio" name="type" value="found">
+                <span><strong>I found an item</strong><small>I'm holding something that isn't mine</small></span>
+              </label>
+            </fieldset>
+
+            <div class="field">
+              <label for="r-title">Item name <span class="req">*</span></label>
+              <input type="text" id="r-title" name="title" maxlength="80" placeholder="e.g. Black Eiger backpack">
+              <p class="error" data-error-for="title"></p>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="r-category">Category <span class="req">*</span></label>
+                <select id="r-category" name="category"><option value="">Select category</option></select>
+                <p class="error" data-error-for="category"></p>
+              </div>
+              <div class="field">
+                <label for="r-location">Location <span class="req">*</span></label>
+                <select id="r-location" name="location"><option value="">Select location</option></select>
+                <p class="error" data-error-for="location"></p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="r-room">Specific room or spot <span class="optional">(optional)</span></label>
+              <input type="text" id="r-room" name="room" maxlength="60" placeholder="e.g. Room 2.3, 2nd floor corridor, near the stairs">
+            </div>
+
+            <div class="field">
+              <label for="r-date"><span id="date-label">Date lost</span> <span class="req">*</span></label>
+              <input type="date" id="r-date" name="date">
+              <p class="error" data-error-for="date"></p>
+            </div>
+
+            <div class="field">
+              <label for="r-description">Description <span class="req">*</span></label>
+              <textarea id="r-description" name="description" rows="4" maxlength="600" placeholder="Colour, brand, distinguishing marks, where exactly, and anything else that helps identify it."></textarea>
+              <p class="hint"><span id="desc-count">0</span>/600</p>
+              <p class="error" data-error-for="description"></p>
+            </div>
+
+            <div class="field">
+              <label for="r-photo">Photo <span class="optional">(optional)</span></label>
+              <input type="file" id="r-photo" accept="image/*">
+              <div id="photo-preview" class="photo-preview" hidden>
+                <img id="photo-img" alt="Selected photo preview">
+                <button type="button" id="photo-remove" class="btn btn-ghost btn-sm">Remove photo</button>
+              </div>
+              <p class="error" data-error-for="photo"></p>
+            </div>
+
+            <fieldset class="contact-box">
+              <legend>Public contact</legend>
+              <p class="hint">Choose <strong>one</strong> contact method. This is the only contact detail that will be visible to the public.</p>
+              <div class="row">
+                <div class="field">
+                  <label for="r-contact-method">Contact method <span class="req">*</span></label>
+                  <select id="r-contact-method" name="contactMethod"></select>
+                </div>
+                <div class="field">
+                  <label for="r-contact-value"><span id="contact-label">WhatsApp number</span> <span class="req">*</span></label>
+                  <input type="text" id="r-contact-value" name="contactValue" maxlength="80">
+                  <p class="error" data-error-for="contactValue"></p>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="field">
+              <label for="r-name">Display name <span class="optional">(optional, shown publicly)</span></label>
+              <input type="text" id="r-name" name="name" maxlength="50" placeholder="e.g. Rina (CS 2023)">
+            </div>
+
+            <div class="form-actions">
+              <a href="#/" class="btn btn-ghost">Cancel</a>
+              <button type="submit" class="btn btn-red">Publish report</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
