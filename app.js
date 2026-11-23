@@ -4,11 +4,6 @@
 (function () {
   'use strict';
 
-  /* ---------- Config ---------- */
-  // Bumped to v3 so any previously saved example posts are discarded.
-  var STORAGE_KEY = 'fasilkom_lostfound_reports_v3';
-  try { localStorage.removeItem('fasilkom_lostfound_reports_v2'); localStorage.removeItem('fasilkom_lostfound_reports_v1'); } catch (e) { /* ignore */ }
-
   var CATEGORIES = [
     { value: 'electronics', label: 'Electronics' },
     { value: 'cards', label: 'Cards & Documents'},
