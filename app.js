@@ -25,7 +25,6 @@
     { value: 'whatsapp', label: 'WhatsApp', field: 'WhatsApp number', placeholder: 'e.g. 081234567890' },
     { value: 'line', label: 'LINE', field: 'LINE ID', placeholder: 'e.g. rina.cs23' },
     { value: 'instagram', label: 'Instagram', field: 'Instagram username', placeholder: 'e.g. rina.cs23' },
-    { value: 'telegram', label: 'Telegram', field: 'Telegram username', placeholder: 'e.g. rina_cs' },
     { value: 'email', label: 'Email', field: 'Email address', placeholder: 'e.g. name@ui.ac.id' }
   ];
 
