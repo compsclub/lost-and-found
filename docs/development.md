@@ -11,9 +11,11 @@ Panduan singkat untuk menjalankan dan mengembangkan Lost and Found Website di me
 ## Setup pertama kali
 
 ```bash
-pnpm install
-cp .env.example .env
+cp .env.example .env   # siapkan konfigurasi lebih dulu
+pnpm install            # sekaligus menjalankan prisma generate
 ```
+
+`.env` dibuat sebelum `pnpm install` karena `postinstall` menjalankan `prisma generate`, yang membaca `DATABASE_URL` dari `.env`. Nilai bawaan dari `.env.example` sudah cukup untuk mulai; sesuaikan bila port atau kredensialnya berbeda.
 
 Lalu pilih salah satu database:
 
