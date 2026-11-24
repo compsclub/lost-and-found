@@ -1,0 +1,18 @@
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #fff;
+}
+
+.lost {
+    background: var(--red-600);
+}
+
+.found {
+    background: var(--blue-600);
+}

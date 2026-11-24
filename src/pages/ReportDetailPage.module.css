@@ -1,0 +1,143 @@
+.backLink {
+    display: inline-block;
+    margin: 1.5rem 0 1rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.backLink:hover {
+    text-decoration: underline;
+}
+
+.card {
+    margin-bottom: 3rem;
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+}
+
+.media {
+    display: grid;
+    place-items: center;
+    max-height: 460px;
+    background: var(--blue-50);
+}
+
+.media img {
+    width: 100%;
+    max-height: 460px;
+    object-fit: contain;
+    background: rgb(11 31 77 / 5%);
+}
+
+.body {
+    padding: 1.6rem;
+}
+
+.head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.6rem;
+}
+
+.head h1 {
+    margin: 0;
+    font-size: 1.7rem;
+    color: var(--blue-900);
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.9rem;
+    margin: 1.2rem 0;
+}
+
+.info {
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    background: var(--blue-50);
+}
+
+.info dt {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.info dd {
+    margin: 0.15rem 0 0;
+    color: var(--blue-900);
+    font-weight: 600;
+}
+
+.sectionTitle {
+    margin: 1.4rem 0 0.4rem;
+    font-size: 1rem;
+    color: var(--blue-800);
+}
+
+.description {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.contactPanel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.6rem;
+    padding: 1.1rem 1.2rem;
+    border: 2px solid var(--red-100);
+    border-radius: var(--radius);
+    background: #fff8f8;
+}
+
+.contactLabel {
+    color: var(--red-700);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.contactValue {
+    color: var(--blue-900);
+    font-size: 1.15rem;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.note {
+    margin: 0.2rem 0 0;
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+
+.empty {
+    margin-bottom: 3rem;
+    padding: 3rem 1.5rem;
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.empty p {
+    max-width: 420px;
+    margin: 0 auto 1.2rem;
+    color: var(--muted);
+}
+
+@media (max-width: 560px) {
+    .body {
+        padding: 1.2rem;
+    }
+}

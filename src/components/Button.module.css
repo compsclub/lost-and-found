@@ -1,0 +1,64 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 10px;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition:
+        transform 0.12s,
+        background 0.15s,
+        box-shadow 0.15s;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+.sm {
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9rem;
+}
+
+.red {
+    background: var(--red-600);
+    color: #fff;
+}
+
+.red:hover {
+    background: var(--red-700);
+}
+
+.blue {
+    background: var(--blue-600);
+    color: #fff;
+}
+
+.blue:hover {
+    background: var(--blue-700);
+}
+
+.light {
+    background: #fff;
+    color: var(--blue-800);
+}
+
+.light:hover {
+    background: var(--blue-100);
+}
+
+.ghost {
+    background: transparent;
+    color: var(--blue-700);
+    border-color: var(--line);
+}
+
+.ghost:hover {
+    background: var(--blue-50);
+    border-color: var(--blue-600);
+}
