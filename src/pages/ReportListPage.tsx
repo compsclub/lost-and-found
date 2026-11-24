@@ -85,29 +85,29 @@ export function ReportListPage() {
         return () => clearTimeout(timer);
     }, [query]);
 
-    useEffect(() => {
-        const controller = new AbortController();
+    /* Loads one page of results for the current filters and page. */
+    const loadReports = useCallback(
+        async (signal: AbortSignal) => {
+            setStatus("loading");
 
-        setStatus("loading");
+            try {
+                const result = await fetchReports(
+                    {
+                        q: filters.q,
+                        type: filters.type,
+                        category: filters.category,
+                        location: filters.location,
+                        page,
+                        limit: PAGE_SIZE,
+                    },
+                    signal,
+                );
 
-        fetchReports(
-            {
-                q: filters.q,
-                type: filters.type,
-                category: filters.category,
-                location: filters.location,
-                page,
-                limit: PAGE_SIZE,
-            },
-            controller.signal,
-        )
-            .then((result) => {
                 setReports(result.data);
                 setPagination(result.pagination);
                 setStatus("ready");
-            })
-            .catch((error: unknown) => {
-                if (controller.signal.aborted) {
+            } catch (error: unknown) {
+                if (signal.aborted) {
                     return;
                 }
 
@@ -117,10 +117,18 @@ export function ReportListPage() {
                         : "Gagal memuat laporan.",
                 );
                 setStatus("error");
-            });
+            }
+        },
+        [filters, page],
+    );
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        void loadReports(controller.signal);
 
         return () => controller.abort();
-    }, [filters, page]);
+    }, [loadReports]);
 
     const categoryOptions = useMemo(
         () => toCategoryOptions(categories),
@@ -130,6 +138,13 @@ export function ReportListPage() {
         () => toLocationOptions(locations),
         [locations],
     );
+
+    /* The retry control re-issues the same request rather than changing state:
+     * the filters and page are unchanged, so nothing would re-trigger the
+     * effect above on its own. */
+    const retry = useCallback(() => {
+        void loadReports(new AbortController().signal);
+    }, [loadReports]);
 
     const updateFilter = useCallback(
         (name: Exclude<keyof Filters, "q">, value: string) => {
@@ -295,7 +310,7 @@ export function ReportListPage() {
                     <div className={styles.empty}>
                         <h2>Gagal memuat laporan</h2>
                         <p>{errorMessage}</p>
-                        <Button variant="blue" onClick={() => setPage(1)}>
+                        <Button variant="blue" onClick={retry}>
                             Coba lagi
                         </Button>
                     </div>
