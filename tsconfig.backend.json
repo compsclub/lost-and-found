@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "outDir": "dist/core",
+        "rootDir": "core",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "sourceMap": true,
+        "declaration": false,
+        "noEmitOnError": true,
+        "verbatimModuleSyntax": true
+    },
+    "include": ["core"]
+}
