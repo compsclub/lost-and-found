@@ -111,20 +111,6 @@
     gap: 1rem;
 }
 
-.photoPreview {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 0.9rem;
-    margin-top: 0.6rem;
-}
-
-.photoPreview img {
-    max-height: 160px;
-    border: 1px solid var(--line);
-    border-radius: 10px;
-}
-
 .contactBox {
     margin-bottom: 1.1rem;
     padding: 1rem 1.1rem 0.2rem;

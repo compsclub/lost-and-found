@@ -5,7 +5,6 @@ import { todayIso } from "./dates";
 export const DESCRIPTION_LIMIT = 600;
 export const TITLE_LIMIT = 80;
 export const ROOM_LIMIT = 200;
-export const PHOTO_LIMIT_BYTES = 10 * 1024 * 1024;
 
 /** The values collected by the submission form. */
 export interface ReportFormValues {

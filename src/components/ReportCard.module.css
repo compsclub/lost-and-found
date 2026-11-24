@@ -56,18 +56,6 @@
     color: var(--blue-900);
 }
 
-.description {
-    display: -webkit-box;
-    margin: 0;
-    overflow: hidden;
-    color: var(--ink);
-    font-size: 0.92rem;
-    line-clamp: 4;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
-    overflow-wrap: anywhere;
-}
-
 .meta {
     display: flex;
     flex-wrap: wrap;

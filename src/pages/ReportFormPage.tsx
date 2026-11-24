@@ -4,7 +4,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
 import { Field, FieldErrors } from "../components/Field";
-import type { CategoryView, LocationView, ReportType } from "../lib/api";
+import type { CategoryView, LocationView } from "../lib/api";
 import {
     ApiError,
     createReport,
