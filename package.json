@@ -8,6 +8,9 @@
         "dev": "concurrently --names api,web --prefix-colors blue,green \"pnpm dev:api\" \"pnpm dev:web\"",
         "dev:api": "tsx watch core/index.ts",
         "dev:web": "vite",
+        "dev:db": "prisma dev",
+        "dev:db:stop": "prisma dev stop default",
+        "dev:db:url": "prisma dev ls",
         "build": "pnpm typecheck && pnpm build:server && pnpm build:client",
         "build:server": "tsc -p tsconfig.backend.json",
         "build:client": "vite build",
@@ -25,7 +28,8 @@
         "db:deploy": "prisma migrate deploy",
         "db:seed": "prisma db seed",
         "db:studio": "prisma studio",
-        "preview:serve": "tsx preview/server.ts"
+        "preview:serve": "tsx preview/server.ts",
+        "dev:db:reset": "prisma dev rm default --force"
     },
     "dependencies": {
         "@prisma/adapter-pg": "^7.10.1",
