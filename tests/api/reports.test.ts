@@ -75,11 +75,21 @@ async function request<T>(
     return { status: response.status, body: (await response.json()) as T };
 }
 
+/* Reports created by this suite; removed in teardown so a run leaves the
+ * shared database as it found it. */
+const createdReportIds: string[] = [];
+
 beforeAll(async () => {
     baseUrl = await listen();
 });
 
 afterAll(async () => {
+    if (createdReportIds.length > 0) {
+        await prisma.report.deleteMany({
+            where: { id: { in: createdReportIds } },
+        });
+    }
+
     await new Promise<void>((resolve) => {
         server.close(() => resolve());
     });
@@ -257,6 +267,7 @@ describe("POST /reports", () => {
         });
 
         expect(status).toBe(201);
+        createdReportIds.push(body.data.id);
         expect(body.data.itemName).toBe("Botol uji integrasi");
         expect(body.data.publicContact).toEqual({
             method: "EMAIL",

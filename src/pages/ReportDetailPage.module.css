@@ -141,3 +141,20 @@
         padding: 1.2rem;
     }
 }
+
+.loading {
+    padding: 2rem 0;
+    color: var(--muted);
+}
+
+.typeNote {
+    margin: 0 0 0.4rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.categoryOther {
+    margin: 0.6rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+}

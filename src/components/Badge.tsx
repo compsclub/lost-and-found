@@ -1,4 +1,4 @@
-import type { ReportType } from "../lib/options";
+import type { ReportType } from "../lib/api";
 import styles from "./Badge.module.css";
 
 interface BadgeProps {
@@ -7,7 +7,7 @@ interface BadgeProps {
 }
 
 export function Badge({ type, className = "" }: BadgeProps) {
-    const isLost = type === "lost";
+    const isLost = type === "LOST";
     const classes = [
         styles.badge,
         isLost ? styles.lost : styles.found,

@@ -1,24 +1,25 @@
+import type { ContactMethod, ReportType } from "./api";
 import { isEmail, isPhone } from "./contact";
 import { todayIso } from "./dates";
-import type { ReportType } from "./options";
 
 export const DESCRIPTION_LIMIT = 600;
 export const TITLE_LIMIT = 80;
-export const ROOM_LIMIT = 60;
+export const ROOM_LIMIT = 200;
 export const PHOTO_LIMIT_BYTES = 10 * 1024 * 1024;
 
 /** The values collected by the submission form. */
 export interface ReportFormValues {
     type: ReportType;
     title: string;
-    category: string;
-    location: string;
+    categorySlug: string;
+    /** Only used when the selected category is `other`. */
+    categoryOther: string;
+    locationSlug: string;
     room: string;
     date: string;
     description: string;
-    contactMethod: string;
+    contactMethod: ContactMethod;
     contactValue: string;
-    name: string;
 }
 
 /** Field name to message, for the fields that failed validation. */
@@ -34,16 +35,29 @@ export function validateReportForm(
 
     if (!form.title.trim()) {
         errors.title = "Silakan isi nama barang.";
+    } else if (form.title.trim().length < 3) {
+        errors.title = "Nama barang minimal 3 karakter.";
     } else if (form.title.trim().length > TITLE_LIMIT) {
         errors.title = `Nama barang maksimal ${TITLE_LIMIT} karakter.`;
     }
 
-    if (!form.category) {
-        errors.category = "Silakan pilih kategori.";
+    if (!form.categorySlug) {
+        errors.categorySlug = "Silakan pilih kategori.";
     }
 
-    if (!form.location) {
-        errors.location = "Silakan pilih lokasi.";
+    const categoryOther = form.categoryOther.trim();
+
+    if (form.categorySlug === "other") {
+        if (categoryOther.length < 3) {
+            errors.categoryOther =
+                "Silakan isi nama kategori (minimal 3 karakter).";
+        } else if (categoryOther.length > 100) {
+            errors.categoryOther = "Nama kategori maksimal 100 karakter.";
+        }
+    }
+
+    if (!form.locationSlug) {
+        errors.locationSlug = "Silakan pilih lokasi.";
     }
 
     if (!form.date) {
@@ -63,14 +77,14 @@ export function validateReportForm(
 
     if (!contactValue) {
         errors.contactValue = "Silakan isi detail kontak.";
-    } else if (form.contactMethod === "email" && !isEmail(contactValue)) {
+    } else if (form.contactMethod === "EMAIL" && !isEmail(contactValue)) {
         errors.contactValue = "Silakan isi alamat email yang valid.";
-    } else if (form.contactMethod === "whatsapp" && !isPhone(contactValue)) {
+    } else if (form.contactMethod !== "EMAIL" && !isPhone(contactValue)) {
         errors.contactValue = "Silakan isi nomor telepon yang valid.";
     }
 
     if (form.room.trim().length > ROOM_LIMIT) {
-        errors.room = `Detail ruangan maksimal ${ROOM_LIMIT} karakter.`;
+        errors.room = `Detail lokasi maksimal ${ROOM_LIMIT} karakter.`;
     }
 
     return errors;

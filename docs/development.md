@@ -41,28 +41,29 @@ Port `3100`, `5273`, dan `55432` dipilih karena `3000`, `5173`, dan `5432` sudah
 
 ```text
 core/          Express API (config, routes, validation, Prisma repository)
-src/           React frontend (sengaja dikosongkan untuk Frontend Developer)
+src/           React frontend (halaman, komponen, helper API dan validasi)
+preview/       Server preview: menyajikan build statis dan mem-proxy /api/v1
 prisma/        Schema, migration, dan seed
-tests/         Vitest: tests/api dan tests/mock (fixture kontrak)
+tests/         Vitest: tests/api, tests/client, dan tests/mock (fixture kontrak)
 db/            docker compose untuk PostgreSQL lokal
 docs/          Kontrak REST API dan desain database
 ```
 
-## Status frontend
+## Frontend
 
-Folder `src/` sengaja dikosongkan supaya Frontend Developer bisa menyusun struktur komponennya sendiri. Backend, database, dan kontrak API sudah siap dipakai.
+Frontend adalah aplikasi React yang memanggil API sungguhan; tidak ada lagi penyimpanan lokal.
 
-Yang sudah tersedia untuk frontend:
+| Halaman | Route | Sumber data |
+| --- | --- | --- |
+| Daftar laporan | `/` | `GET /reports` dengan pencarian, filter, dan pagination |
+| Detail laporan | `/report/:id` | `GET /reports/:id` |
+| Buat laporan | `/new` | `POST /reports` |
 
-- API berjalan di `http://localhost:3100/api/v1` dan sudah diproxy oleh Vite pada path `/api/v1`.
-- Vite, React, dan konfigurasi proxy ada di `vite.config.js`; tidak perlu mengubah apa pun untuk mulai.
-- Mock data kontrak ada di `tests/mock/` sebagai acuan bentuk respons.
+Kategori dan lokasi diambil dari `GET /categories` dan `GET /locations`, jadi menambah data di database langsung muncul di formulir.
 
-Yang perlu ditambahkan oleh Frontend Developer:
+`src/lib/api.ts` adalah satu-satunya lapisan yang menyentuh jaringan. Base URL relatif (`/api/v1`), sehingga browser, Vite, dan preview semuanya bekerja tanpa konfigurasi CORS.
 
-1. Entry point React, lalu daftarkan module script-nya di `index.html` pada elemen `#root`.
-2. Struktur komponen dan styling. Proyek ini memakai CSS Modules (`*.module.css`); hindari CSS global kecuali reset dan variabel dasar.
-3. Halaman Report Listing, Report Detail, dan Report Submission sesuai `docs/rest-api.md`.
+Styling memakai CSS Modules (`*.module.css`); `src/styles/global.css` hanya berisi reset dan token.
 
 ## Perintah berguna
 
@@ -71,16 +72,32 @@ Yang perlu ditambahkan oleh Frontend Developer:
 | `pnpm dev` | API dan frontend sekaligus |
 | `pnpm check` | Biome + seluruh test |
 | `pnpm test` | Vitest sekali jalan |
-| `pnpm build` | Build frontend ke `dist/client` |
+| `pnpm build` | Typecheck, lalu build API ke `dist/core` dan frontend ke `dist/client` |
+| `pnpm start` | Jalankan API hasil build |
+| `pnpm preview:serve` | Sajikan `dist/client` dan proxy `/api/v1` ke API |
 | `pnpm db:migrate` | Buat dan terapkan migration baru |
 | `pnpm db:seed` | Isi database dari `tests/mock/reports.seed.json` |
 | `pnpm db:studio` | Buka Prisma Studio |
 
-`pnpm build` saat ini hanya menghasilkan `index.html` kosong sampai entry point frontend ditambahkan.
+## Menyajikan build statis
+
+Build produksi memisahkan dua hal: berkas statis dan API.
+
+```bash
+pnpm build
+pnpm start          # API di :3100
+pnpm preview:serve  # berkas statis di :8080, /api/v1 diproxy ke :3100
+```
+
+`preview/server.ts` menyajikan `dist/client` dan meneruskan `/api/v1` ke `API_TARGET` (default `http://127.0.0.1:3100`), sehingga browser hanya melihat satu origin. Express sendiri tetap API saja dan tidak menyajikan berkas statis, jadi reverse proxy produksi cukup mengarahkan `/` ke berkas statis dan `/api/v1` ke Express.
+
+Aset ber-hash di `dist/client/assets` bersifat immutable; path lain jatuh ke `index.html` supaya route React Router tetap bekerja saat di-refresh.
 
 ## Catatan implementasi
 
-- Proyek memakai JavaScript murni (tanpa TypeScript).
+- Proyek memakai TypeScript untuk API, frontend, dan test.
 - Semua styling frontend memakai CSS Modules (`*.module.css`).
-- Validasi request memakai Zod di `core/validation.js`; aturan yang bergantung pada data (`other` untuk kategori dan lokasi) diperiksa di `core/routes.js` setelah lookup database.
+- Validasi request memakai Zod di `core/validation.ts`; aturan yang bergantung pada data (`other` untuk kategori dan lokasi) diperiksa di `core/routes.ts` setelah lookup database.
 - Test API berjalan terhadap database sungguhan, bukan mock. Jalankan `pnpm db:migrate` dan `pnpm db:seed` lebih dulu.
+- `tests/client` menguji helper dan validasi frontend tanpa jaringan; `tests/api/client-contract.test.ts` memastikan bentuk respons API sesuai yang dibaca frontend.
+- Cloudinary belum diintegrasikan; `imageUrl` selalu `null` untuk saat ini.

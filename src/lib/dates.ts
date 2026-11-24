@@ -16,9 +16,21 @@ export function toIsoDate(date: Date): string {
     return `${year}-${month}-${day}`;
 }
 
+/** Format a calendar date (`YYYY-MM-DD`) or a full ISO timestamp. */
 export function formatDate(value: string | null | undefined): string {
     if (!value) {
         return "";
+    }
+
+    // Timestamps carry a time component; only the date matters for display.
+    if (String(value).includes("T")) {
+        const parsed = new Date(value);
+
+        if (Number.isNaN(parsed.getTime())) {
+            return value;
+        }
+
+        return dateFormatter.format(parsed);
     }
 
     const parts = String(value).split("-");

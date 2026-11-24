@@ -1,52 +1,40 @@
+import type {
+    CategoryView,
+    ContactMethod,
+    LocationView,
+    ReportType,
+} from "./api";
+
 export interface SelectOption {
     value: string;
     label: string;
 }
 
-export interface ContactMethodOption extends SelectOption {
+export interface ContactMethodOption {
+    value: ContactMethod;
+    label: string;
     field: string;
     placeholder: string;
     type: "tel" | "text" | "email";
 }
 
-export type ReportType = "lost" | "found";
-
-export const CATEGORIES: SelectOption[] = [
-    { value: "electronics", label: "Elektronik" },
-    { value: "cards", label: "Kartu & Dokumen" },
-    { value: "bottle", label: "Botol minum" },
-    { value: "other", label: "Lainnya" },
-];
-
-export const LOCATIONS: SelectOption[] = [
-    { value: "Gedung Lama", label: "Gedung Lama" },
-    { value: "Gedung Baru", label: "Gedung Baru" },
-];
-
 export const CONTACT_METHODS: ContactMethodOption[] = [
     {
-        value: "whatsapp",
+        value: "WHATSAPP",
         label: "WhatsApp",
         field: "Nomor WhatsApp",
-        placeholder: "mis. 081234567890",
+        placeholder: "mis. +6281234567890",
         type: "tel",
     },
     {
-        value: "line",
-        label: "LINE",
-        field: "ID LINE",
-        placeholder: "mis. rina.cs23",
-        type: "text",
+        value: "PHONE",
+        label: "Telepon",
+        field: "Nomor telepon",
+        placeholder: "mis. +6281234567890",
+        type: "tel",
     },
     {
-        value: "instagram",
-        label: "Instagram",
-        field: "Nama pengguna Instagram",
-        placeholder: "mis. rina.cs23",
-        type: "text",
-    },
-    {
-        value: "email",
+        value: "EMAIL",
         label: "Email",
         field: "Alamat email",
         placeholder: "mis. nama@ui.ac.id",
@@ -55,17 +43,9 @@ export const CONTACT_METHODS: ContactMethodOption[] = [
 ];
 
 export const REPORT_TYPES: Array<{ value: ReportType; label: string }> = [
-    { value: "lost", label: "Hilang" },
-    { value: "found", label: "Ditemukan" },
+    { value: "LOST", label: "Hilang" },
+    { value: "FOUND", label: "Ditemukan" },
 ];
-
-/** Resolve a category, falling back to the catch-all option. */
-export function categoryOf(value: string | undefined): SelectOption {
-    return (
-        CATEGORIES.find((item) => item.value === value) ??
-        (CATEGORIES[CATEGORIES.length - 1] as SelectOption)
-    );
-}
 
 /** Resolve a contact method, falling back to the first option. */
 export function contactOf(value: string | undefined): ContactMethodOption {
@@ -76,5 +56,20 @@ export function contactOf(value: string | undefined): ContactMethodOption {
 }
 
 export function reportTypeLabel(value: ReportType): string {
-    return value === "lost" ? "Hilang" : "Ditemukan";
+    return value === "LOST" ? "Hilang" : "Ditemukan";
+}
+
+/** Category and location options come from the API so they always match. */
+export function toCategoryOptions(categories: CategoryView[]): SelectOption[] {
+    return categories.map((category) => ({
+        value: category.slug,
+        label: category.name,
+    }));
+}
+
+export function toLocationOptions(locations: LocationView[]): SelectOption[] {
+    return locations.map((location) => ({
+        value: location.slug,
+        label: location.name,
+    }));
 }

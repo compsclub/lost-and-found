@@ -1,37 +1,38 @@
-import type { ChangeEvent, FormEvent } from "react";
-import { useEffect, useRef, useState } from "react";
+import type { FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
 import { Field, FieldErrors } from "../components/Field";
-import { todayIso } from "../lib/dates";
+import type { CategoryView, LocationView, ReportType } from "../lib/api";
 import {
-    CATEGORIES,
-    CONTACT_METHODS,
-    contactOf,
-    LOCATIONS,
-    REPORT_TYPES,
-} from "../lib/options";
-import { createReportId, readPhoto, saveReport } from "../lib/reports-store";
+    ApiError,
+    createReport,
+    fetchCategories,
+    fetchLocations,
+} from "../lib/api";
+import { toE164 } from "../lib/contact";
+import { todayIso } from "../lib/dates";
+import { CONTACT_METHODS, contactOf, REPORT_TYPES } from "../lib/options";
 import type { ReportFormErrors, ReportFormValues } from "../lib/validation";
 import {
     DESCRIPTION_LIMIT,
-    PHOTO_LIMIT_BYTES,
+    TITLE_LIMIT,
     validateReportForm,
 } from "../lib/validation";
 import styles from "./ReportFormPage.module.css";
 
-const emptyForm = {
-    type: "lost" as const,
+const emptyForm: ReportFormValues = {
+    type: "LOST",
     title: "",
-    category: "",
-    location: "",
+    categorySlug: "",
+    categoryOther: "",
+    locationSlug: "",
     room: "",
     date: "",
     description: "",
-    contactMethod: "whatsapp",
+    contactMethod: "WHATSAPP",
     contactValue: "",
-    name: "",
 };
 
 export function ReportFormPage() {
@@ -41,19 +42,51 @@ export function ReportFormPage() {
 
     const [form, setForm] = useState<ReportFormValues>({
         ...emptyForm,
-        type: presetType === "found" ? "found" : "lost",
+        type: presetType === "FOUND" ? "FOUND" : "LOST",
         date: todayIso(),
     });
     const [errors, setErrors] = useState<ReportFormErrors>({});
-    const [photo, setPhoto] = useState("");
-    const [photoError, setPhotoError] = useState("");
-    const [notice, setNotice] = useState("");
+    const [serverError, setServerError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [categories, setCategories] = useState<CategoryView[]>([]);
+    const [locations, setLocations] = useState<LocationView[]>([]);
     const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(() => {
         document.title = "Buat laporan · Fasilkom UI Lost & Found";
     }, []);
 
+    useEffect(() => {
+        const controller = new AbortController();
+
+        Promise.all([
+            fetchCategories(controller.signal),
+            fetchLocations(controller.signal),
+        ])
+            .then(([nextCategories, nextLocations]) => {
+                setCategories(nextCategories);
+                setLocations(nextLocations);
+            })
+            .catch(() => {
+                setServerError(
+                    "Gagal memuat pilihan kategori dan lokasi. Muat ulang halaman.",
+                );
+            });
+
+        return () => controller.abort();
+    }, []);
+
+    // Custom category/location names apply only to the "other" rows.
+    const selectedCategory = useMemo(
+        () => categories.find((item) => item.slug === form.categorySlug),
+        [categories, form.categorySlug],
+    );
+    const selectedLocation = useMemo(
+        () => locations.find((item) => item.slug === form.locationSlug),
+        [locations, form.locationSlug],
+    );
+    const isOtherCategory = selectedCategory?.slug === "other";
+    const isOtherLocation = selectedLocation?.slug === "other";
     const contact = contactOf(form.contactMethod);
 
     function update(name: keyof ReportFormValues, value: string) {
@@ -75,56 +108,30 @@ export function ReportFormPage() {
         element?.focus();
     }
 
-    async function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
-        const file = event.target.files?.[0];
+    function applyServerDetails(error: ApiError) {
+        const nextErrors: ReportFormErrors = {};
 
-        setPhotoError("");
+        for (const detail of error.details) {
+            const field = detail.field as keyof ReportFormValues;
 
-        if (!file) {
-            setPhoto("");
+            if (field in emptyForm) {
+                nextErrors[field] = detail.message;
+            }
+        }
+
+        if (Object.keys(nextErrors).length > 0) {
+            setErrors((current) => ({ ...current, ...nextErrors }));
+            focusFirstError(nextErrors);
 
             return;
         }
 
-        if (!/^image\//.test(file.type)) {
-            setPhotoError("Silakan pilih berkas gambar.");
-            event.target.value = "";
-
-            return;
-        }
-
-        if (file.size > PHOTO_LIMIT_BYTES) {
-            setPhotoError("Ukuran gambar terlalu besar (maksimal 10 MB).");
-            event.target.value = "";
-
-            return;
-        }
-
-        const dataUrl = await readPhoto(file);
-
-        if (!dataUrl) {
-            setPhotoError("Gambar tidak dapat dibaca.");
-
-            return;
-        }
-
-        setPhoto(dataUrl);
+        setServerError(error.message);
     }
 
-    function removePhoto() {
-        setPhoto("");
-        setPhotoError("");
-
-        const input =
-            formRef.current?.querySelector<HTMLInputElement>('[name="photo"]');
-
-        if (input) {
-            input.value = "";
-        }
-    }
-
-    function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        setServerError("");
 
         const nextErrors = validateReportForm(form);
 
@@ -136,43 +143,53 @@ export function ReportFormPage() {
             return;
         }
 
-        const report = {
-            id: createReportId(),
-            type: form.type,
-            title: form.title.trim(),
-            category: form.category,
-            location: form.location,
-            room: form.room.trim(),
-            date: form.date,
-            description: form.description.trim(),
-            photo,
-            contactMethod: form.contactMethod,
-            contactValue: form.contactValue.trim(),
-            name: form.name.trim(),
-            createdAt: Date.now(),
-        };
-
-        const result = saveReport(report);
-
-        if (!result.saved) {
-            setNotice(
-                "Laporan tidak dapat disimpan: penyimpanan peramban penuh.",
-            );
+        if (!selectedCategory || !selectedLocation) {
+            setServerError("Silakan pilih kategori dan lokasi.");
 
             return;
         }
 
-        if (result.droppedPhoto) {
-            setNotice(
-                "Laporan terkirim, tetapi foto terlalu besar untuk disimpan.",
-            );
-        }
+        setSubmitting(true);
 
-        navigate(`/report/${encodeURIComponent(report.id)}`);
+        try {
+            const created = await createReport({
+                reportType: form.type,
+                itemName: form.title.trim(),
+                categoryId: selectedCategory.id,
+                categoryOther: isOtherCategory
+                    ? form.categoryOther.trim()
+                    : null,
+                description: form.description.trim(),
+                locationId: selectedLocation.id,
+                locationDetail: form.room.trim() || null,
+                occurredAt: form.date
+                    ? new Date(form.date).toISOString()
+                    : null,
+                contact: {
+                    method: form.contactMethod,
+                    value:
+                        form.contactMethod === "EMAIL"
+                            ? form.contactValue.trim()
+                            : toE164(form.contactValue),
+                },
+            });
+
+            navigate(`/report/${encodeURIComponent(created.id)}`);
+        } catch (error: unknown) {
+            setSubmitting(false);
+
+            if (error instanceof ApiError) {
+                applyServerDetails(error);
+
+                return;
+            }
+
+            setServerError("Laporan gagal dikirim. Coba lagi.");
+        }
     }
 
     const dateLabel =
-        form.type === "lost" ? "Tanggal hilang" : "Tanggal ditemukan";
+        form.type === "LOST" ? "Tanggal hilang" : "Tanggal ditemukan";
 
     return (
         <Container narrow>
@@ -187,9 +204,9 @@ export function ReportFormPage() {
                     di bawah yang akan ditampilkan kepada pengunjung.
                 </p>
 
-                {notice ? (
-                    <p className={styles.notice} role="status">
-                        {notice}
+                {serverError ? (
+                    <p className={styles.notice} role="alert">
+                        {serverError}
                     </p>
                 ) : null}
 
@@ -201,7 +218,7 @@ export function ReportFormPage() {
                             <label
                                 key={type.value}
                                 className={`${styles.typeOption} ${
-                                    type.value === "lost"
+                                    type.value === "LOST"
                                         ? styles.typeLost
                                         : styles.typeFound
                                 }`}
@@ -215,12 +232,12 @@ export function ReportFormPage() {
                                 />
                                 <span>
                                     <strong>
-                                        {type.value === "lost"
+                                        {type.value === "LOST"
                                             ? "Saya kehilangan barang"
                                             : "Saya menemukan barang"}
                                     </strong>
                                     <small>
-                                        {type.value === "lost"
+                                        {type.value === "LOST"
                                             ? "Sedang mencari sesuatu yang saya hilangkan"
                                             : "Saya menyimpan barang milik orang lain"}
                                     </small>
@@ -241,7 +258,7 @@ export function ReportFormPage() {
                             id="title"
                             name="title"
                             type="text"
-                            maxLength={80}
+                            maxLength={TITLE_LIMIT}
                             value={form.title}
                             placeholder="mis. Ransel Eiger hitam"
                             onChange={(event) =>
@@ -253,25 +270,25 @@ export function ReportFormPage() {
                     <div className={styles.row}>
                         <Field
                             label="Kategori"
-                            name="category"
+                            name="categorySlug"
                             required
-                            error={errors.category}
+                            error={errors.categorySlug}
                         >
                             <select
-                                id="category"
-                                name="category"
-                                value={form.category}
+                                id="categorySlug"
+                                name="categorySlug"
+                                value={form.categorySlug}
                                 onChange={(event) =>
-                                    update("category", event.target.value)
+                                    update("categorySlug", event.target.value)
                                 }
                             >
                                 <option value="">Pilih kategori</option>
-                                {CATEGORIES.map((category) => (
+                                {categories.map((category) => (
                                     <option
-                                        key={category.value}
-                                        value={category.value}
+                                        key={category.id}
+                                        value={category.slug}
                                     >
-                                        {category.label}
+                                        {category.name}
                                     </option>
                                 ))}
                             </select>
@@ -279,44 +296,74 @@ export function ReportFormPage() {
 
                         <Field
                             label="Lokasi"
-                            name="location"
+                            name="locationSlug"
                             required
-                            error={errors.location}
+                            error={errors.locationSlug}
                         >
                             <select
-                                id="location"
-                                name="location"
-                                value={form.location}
+                                id="locationSlug"
+                                name="locationSlug"
+                                value={form.locationSlug}
                                 onChange={(event) =>
-                                    update("location", event.target.value)
+                                    update("locationSlug", event.target.value)
                                 }
                             >
                                 <option value="">Pilih lokasi</option>
-                                {LOCATIONS.map((location) => (
+                                {locations.map((location) => (
                                     <option
-                                        key={location.value}
-                                        value={location.value}
+                                        key={location.id}
+                                        value={location.slug}
                                     >
-                                        {location.label}
+                                        {location.name}
                                     </option>
                                 ))}
                             </select>
                         </Field>
                     </div>
 
+                    {isOtherCategory ? (
+                        <Field
+                            label="Nama kategori"
+                            name="categoryOther"
+                            required
+                            error={errors.categoryOther}
+                        >
+                            <input
+                                id="categoryOther"
+                                name="categoryOther"
+                                type="text"
+                                maxLength={100}
+                                value={form.categoryOther}
+                                placeholder="mis. Payung, alat musik"
+                                onChange={(event) =>
+                                    update("categoryOther", event.target.value)
+                                }
+                            />
+                        </Field>
+                    ) : null}
+
                     <Field
-                        label="Ruangan atau titik spesifik"
+                        label={
+                            isOtherLocation
+                                ? "Nama lokasi"
+                                : "Ruangan atau titik spesifik"
+                        }
                         name="room"
-                        optionalLabel="opsional"
+                        required={isOtherLocation}
+                        optionalLabel={isOtherLocation ? undefined : "opsional"}
                         error={errors.room}
                     >
                         <input
                             id="room"
                             name="room"
                             type="text"
-                            maxLength={60}
+                            maxLength={200}
                             value={form.room}
-                            placeholder="mis. Ruang 2.3, koridor lantai 2, dekat tangga"
+                            placeholder={
+                                isOtherLocation
+                                    ? "mis. Kantin Fakultas Teknik, dekat pintu timur"
+                                    : "mis. Ruang 2.3, koridor lantai 2"
+                            }
                             onChange={(event) =>
                                 update("room", event.target.value)
                             }
@@ -359,37 +406,6 @@ export function ReportFormPage() {
                                 update("description", event.target.value)
                             }
                         />
-                    </Field>
-
-                    <Field
-                        label="Foto"
-                        name="photo"
-                        optionalLabel="opsional"
-                        error={photoError}
-                    >
-                        <input
-                            id="photo"
-                            name="photo"
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoChange}
-                        />
-
-                        {photo ? (
-                            <div className={styles.photoPreview}>
-                                <img
-                                    src={photo}
-                                    alt="Pratinjau foto terpilih"
-                                />
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={removePhoto}
-                                >
-                                    Hapus foto
-                                </Button>
-                            </div>
-                        ) : null}
                     </Field>
 
                     <fieldset className={styles.contactBox}>
@@ -451,30 +467,16 @@ export function ReportFormPage() {
                         </div>
                     </fieldset>
 
-                    <Field
-                        label="Nama tampilan"
-                        name="name"
-                        optionalLabel="opsional, ditampilkan publik"
-                    >
-                        <input
-                            id="name"
-                            name="name"
-                            type="text"
-                            maxLength={50}
-                            value={form.name}
-                            placeholder="mis. Rina (CS 2023)"
-                            onChange={(event) =>
-                                update("name", event.target.value)
-                            }
-                        />
-                    </Field>
-
                     <div className={styles.actions}>
                         <Button as={Link} to="/" variant="ghost">
                             Batal
                         </Button>
-                        <Button type="submit" variant="red">
-                            Kirim laporan
+                        <Button
+                            type="submit"
+                            variant="red"
+                            disabled={submitting}
+                        >
+                            {submitting ? "Mengirim…" : "Kirim laporan"}
                         </Button>
                     </div>
                 </form>

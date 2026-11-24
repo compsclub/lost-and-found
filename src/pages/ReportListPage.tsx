@@ -1,69 +1,153 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/Button";
 import { Container } from "../components/Container";
 import { ReportCard } from "../components/ReportCard";
-import { CATEGORIES, LOCATIONS, REPORT_TYPES } from "../lib/options";
-import type { StoredReport } from "../lib/reports-store";
-import { listReports } from "../lib/reports-store";
+import type {
+    CategoryView,
+    LocationView,
+    Pagination,
+    ReportSummary,
+    ReportType,
+} from "../lib/api";
+import {
+    ApiError,
+    fetchCategories,
+    fetchLocations,
+    fetchReports,
+} from "../lib/api";
+import type { SelectOption } from "../lib/options";
+import {
+    REPORT_TYPES,
+    toCategoryOptions,
+    toLocationOptions,
+} from "../lib/options";
 import styles from "./ReportListPage.module.css";
 
 interface Filters {
     q: string;
-    type: string;
+    type: ReportType | "";
     category: string;
     location: string;
 }
 
-export function ReportListPage() {
-    const [reports, setReports] = useState<StoredReport[]>([]);
-    const [filters, setFilters] = useState<Filters>({
-        q: "",
-        type: "",
-        category: "",
-        location: "",
-    });
+const initialFilters: Filters = {
+    q: "",
+    type: "",
+    category: "",
+    location: "",
+};
 
+const PAGE_SIZE = 12;
+
+export function ReportListPage() {
+    const [reports, setReports] = useState<ReportSummary[]>([]);
+    const [pagination, setPagination] = useState<Pagination | null>(null);
+    const [page, setPage] = useState(1);
+    const [status, setStatus] = useState<"loading" | "ready" | "error">(
+        "loading",
+    );
+    const [errorMessage, setErrorMessage] = useState("");
+    const [filters, setFilters] = useState<Filters>(initialFilters);
+    const [categories, setCategories] = useState<CategoryView[]>([]);
+    const [locations, setLocations] = useState<LocationView[]>([]);
+
+    // Reference data drives the filter options, so it always matches the API.
     useEffect(() => {
-        setReports(listReports());
+        const controller = new AbortController();
+
+        Promise.all([
+            fetchCategories(controller.signal),
+            fetchLocations(controller.signal),
+        ])
+            .then(([nextCategories, nextLocations]) => {
+                setCategories(nextCategories);
+                setLocations(nextLocations);
+            })
+            .catch(() => {
+                // The listing still works without filter options.
+            });
+
+        return () => controller.abort();
     }, []);
 
-    const visibleReports = useMemo(() => {
-        const query = filters.q.trim().toLowerCase();
+    // Debounce typing so each keystroke does not hit the API.
+    const [query, setQuery] = useState("");
 
-        return reports.filter((report) => {
-            if (query && !report.title.toLowerCase().includes(query)) {
-                return false;
-            }
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setFilters((current) =>
+                current.q === query ? current : { ...current, q: query },
+            );
+            setPage(1);
+        }, 300);
 
-            if (filters.type && report.type !== filters.type) {
-                return false;
-            }
+        return () => clearTimeout(timer);
+    }, [query]);
 
-            if (filters.category && report.category !== filters.category) {
-                return false;
-            }
+    useEffect(() => {
+        const controller = new AbortController();
 
-            if (filters.location && report.location !== filters.location) {
-                return false;
-            }
+        setStatus("loading");
 
-            return true;
-        });
-    }, [reports, filters]);
+        fetchReports(
+            {
+                q: filters.q,
+                type: filters.type,
+                category: filters.category,
+                location: filters.location,
+                page,
+                limit: PAGE_SIZE,
+            },
+            controller.signal,
+        )
+            .then((result) => {
+                setReports(result.data);
+                setPagination(result.pagination);
+                setStatus("ready");
+            })
+            .catch((error: unknown) => {
+                if (controller.signal.aborted) {
+                    return;
+                }
 
-    const lostCount = reports.filter((report) => report.type === "lost").length;
-    const foundCount = reports.length - lostCount;
+                setErrorMessage(
+                    error instanceof ApiError
+                        ? error.message
+                        : "Gagal memuat laporan.",
+                );
+                setStatus("error");
+            });
 
-    function updateFilter(name: keyof Filters, value: string) {
-        setFilters((current) => ({ ...current, [name]: value }));
-    }
+        return () => controller.abort();
+    }, [filters, page]);
 
-    function resetFilters() {
-        setFilters({ q: "", type: "", category: "", location: "" });
-    }
+    const categoryOptions = useMemo(
+        () => toCategoryOptions(categories),
+        [categories],
+    );
+    const locationOptions = useMemo(
+        () => toLocationOptions(locations),
+        [locations],
+    );
+
+    const updateFilter = useCallback(
+        (name: Exclude<keyof Filters, "q">, value: string) => {
+            setFilters((current) => ({ ...current, [name]: value }));
+            setPage(1);
+        },
+        [],
+    );
+
+    const resetFilters = useCallback(() => {
+        setFilters(initialFilters);
+        setQuery("");
+        setPage(1);
+    }, []);
 
     const hasFilters = Object.values(filters).some(Boolean);
+    const totalItems = pagination?.totalItems ?? 0;
+    const shownCount = reports.length;
 
     return (
         <>
@@ -80,14 +164,14 @@ export function ReportListPage() {
                             <div className={styles.heroActions}>
                                 <Button
                                     as={Link}
-                                    to="/new?type=lost"
+                                    to="/new?type=LOST"
                                     variant="red"
                                 >
                                     Saya kehilangan barang
                                 </Button>
                                 <Button
                                     as={Link}
-                                    to="/new?type=found"
+                                    to="/new?type=FOUND"
                                     variant="light"
                                 >
                                     Saya menemukan barang
@@ -98,16 +182,18 @@ export function ReportListPage() {
                         <ul className={styles.stats}>
                             <li className={styles.stat}>
                                 <span className={styles.statNum}>
-                                    {lostCount}
+                                    {totalItems}
                                 </span>
-                                <span className={styles.statLabel}>Hilang</span>
+                                <span className={styles.statLabel}>
+                                    Total laporan
+                                </span>
                             </li>
                             <li className={styles.stat}>
                                 <span className={styles.statNum}>
-                                    {foundCount}
+                                    {shownCount}
                                 </span>
                                 <span className={styles.statLabel}>
-                                    Ditemukan
+                                    Di halaman ini
                                 </span>
                             </li>
                         </ul>
@@ -126,11 +212,9 @@ export function ReportListPage() {
                         <input
                             id="filter-search"
                             type="search"
-                            value={filters.q}
+                            value={query}
                             placeholder="mis. dompet hitam, charger laptop…"
-                            onChange={(event) =>
-                                updateFilter("q", event.target.value)
-                            }
+                            onChange={(event) => setQuery(event.target.value)}
                         />
                     </div>
 
@@ -162,12 +246,9 @@ export function ReportListPage() {
                             }
                         >
                             <option value="">Semua kategori</option>
-                            {CATEGORIES.map((category) => (
-                                <option
-                                    key={category.value}
-                                    value={category.value}
-                                >
-                                    {category.label}
+                            {categoryOptions.map((option: SelectOption) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
                                 </option>
                             ))}
                         </select>
@@ -183,12 +264,9 @@ export function ReportListPage() {
                             }
                         >
                             <option value="">Semua lokasi</option>
-                            {LOCATIONS.map((location) => (
-                                <option
-                                    key={location.value}
-                                    value={location.value}
-                                >
-                                    {location.label}
+                            {locationOptions.map((option: SelectOption) => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
                                 </option>
                             ))}
                         </select>
@@ -207,21 +285,33 @@ export function ReportListPage() {
 
                 <div className={styles.resultsBar}>
                     <p className={styles.resultCount} aria-live="polite">
-                        {visibleReports.length === reports.length
-                            ? `Menampilkan semua ${reports.length} laporan`
-                            : `Menampilkan ${visibleReports.length} dari ${reports.length} laporan`}
+                        {status === "loading"
+                            ? "Memuat laporan…"
+                            : `Menampilkan ${shownCount} dari ${totalItems} laporan`}
                     </p>
                 </div>
 
-                {visibleReports.length > 0 ? (
+                {status === "error" ? (
+                    <div className={styles.empty}>
+                        <h2>Gagal memuat laporan</h2>
+                        <p>{errorMessage}</p>
+                        <Button variant="blue" onClick={() => setPage(1)}>
+                            Coba lagi
+                        </Button>
+                    </div>
+                ) : null}
+
+                {status !== "error" && reports.length > 0 ? (
                     <ul className={styles.grid}>
-                        {visibleReports.map((report) => (
+                        {reports.map((report) => (
                             <li key={report.id} className={styles.gridItem}>
                                 <ReportCard report={report} />
                             </li>
                         ))}
                     </ul>
-                ) : (
+                ) : null}
+
+                {status === "ready" && reports.length === 0 ? (
                     <div className={styles.empty}>
                         <h2>Tidak ada laporan yang cocok</h2>
                         <p>
@@ -232,7 +322,32 @@ export function ReportListPage() {
                             Laporkan barang
                         </Button>
                     </div>
-                )}
+                ) : null}
+
+                {pagination && pagination.totalPages > 1 ? (
+                    <nav className={styles.paginationBar} aria-label="Paginasi">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={!pagination.hasPreviousPage}
+                            onClick={() => setPage((current) => current - 1)}
+                        >
+                            Sebelumnya
+                        </Button>
+                        <span>
+                            Halaman {pagination.page} dari{" "}
+                            {pagination.totalPages}
+                        </span>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={!pagination.hasNextPage}
+                            onClick={() => setPage((current) => current + 1)}
+                        >
+                            Berikutnya
+                        </Button>
+                    </nav>
+                ) : null}
             </Container>
         </>
     );
