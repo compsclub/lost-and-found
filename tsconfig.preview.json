@@ -1,0 +1,15 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "outDir": "dist/preview",
+        "rootDir": "preview",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "sourceMap": false,
+        "declaration": false,
+        "noEmitOnError": true,
+        "verbatimModuleSyntax": true
+    },
+    "include": ["preview"]
+}

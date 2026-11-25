@@ -11,7 +11,7 @@
         "dev:db": "prisma dev",
         "dev:db:stop": "prisma dev stop default",
         "dev:db:url": "prisma dev ls",
-        "build": "pnpm typecheck && pnpm build:server && pnpm build:client",
+        "build": "pnpm typecheck && pnpm build:server && pnpm build:preview && pnpm build:client",
         "build:server": "tsc -p tsconfig.backend.json",
         "build:client": "vite build",
         "preview": "vite preview",
@@ -29,7 +29,9 @@
         "db:seed": "prisma db seed",
         "db:studio": "prisma studio",
         "preview:serve": "tsx preview/server.ts",
-        "dev:db:reset": "prisma dev rm default --force"
+        "dev:db:reset": "prisma dev rm default --force",
+        "build:preview": "tsc -p tsconfig.preview.json",
+        "start:static": "node dist/preview/server.js"
     },
     "dependencies": {
         "@prisma/adapter-pg": "^7.10.1",

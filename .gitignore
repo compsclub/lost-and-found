@@ -6,3 +6,6 @@ coverage/
 !.env.example
 .DS_Store
 src/generated/
+
+# Deployment state for this host (contains environment-specific values).
+deploy/

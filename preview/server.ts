@@ -13,10 +13,13 @@ import { createServer } from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const projectRoot = path.resolve(
-    path.dirname(fileURLToPath(import.meta.url)),
-    "..",
-);
+/* The server runs from two layouts: `preview/server.ts` in development, and
+ * `dist/preview/server.js` after a build. Both need the same project root so the
+ * client bundle under `dist/client` is found either way. */
+const moduleDir = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = moduleDir.endsWith(path.join("dist", "preview"))
+    ? path.resolve(moduleDir, "..", "..")
+    : path.resolve(moduleDir, "..");
 const clientRoot = path.join(projectRoot, "dist", "client");
 const apiTarget = process.env.API_TARGET ?? "http://127.0.0.1:3100";
 const port = Number(process.env.PREVIEW_PORT ?? 8080);
