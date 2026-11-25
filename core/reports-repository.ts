@@ -1,4 +1,5 @@
 import type { Category, Location, Prisma } from "@prisma/client";
+import type { UploadedImage } from "./cloudinary.js";
 import { prisma } from "./db.js";
 import {
     toCategoryList,
@@ -93,6 +94,7 @@ export function findLocationById(id: string): Promise<Location | null> {
 
 export async function createReport(
     input: CreateReportInput,
+    image: UploadedImage | null = null,
 ): Promise<ReportDetailView> {
     const report = await prisma.report.create({
         data: {
@@ -104,6 +106,8 @@ export async function createReport(
             locationId: input.locationId,
             locationDetail: input.locationDetail ?? null,
             occurredAt: input.occurredAt ? new Date(input.occurredAt) : null,
+            imageUrl: image?.url ?? null,
+            imagePublicId: image?.publicId ?? null,
             contact: {
                 create: {
                     method: input.contact.method,

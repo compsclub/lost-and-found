@@ -13,5 +13,10 @@ export default defineConfig({
         // React only exports `act` from its development build, and a shell that
         // exports NODE_ENV=production would otherwise make every render fail.
         env: { NODE_ENV: "test" },
+        // Suites that exercise the browser client need a document origin, so a
+        // relative `/api/v1` fetch resolves to their test server.
+        environmentOptions: {
+            jsdom: { url: "http://127.0.0.1:4599/" },
+        },
     },
 });

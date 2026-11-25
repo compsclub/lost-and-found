@@ -210,7 +210,25 @@ export async function fetchLocations(
 
 export async function createReport(
     input: CreateReportInput,
+    photo?: File | null,
 ): Promise<ReportDetail> {
+    /* A photo has to travel as multipart, so the JSON moves into a `data`
+     * field and the file rides alongside it. Without a photo the plain JSON
+     * body is smaller and stays the default. */
+    if (photo) {
+        const body = new FormData();
+
+        body.set("data", JSON.stringify(input));
+        body.set("photo", photo, photo.name);
+
+        const uploaded = await request<{ data: ReportDetail }>("/reports", {
+            method: "POST",
+            body,
+        });
+
+        return uploaded.data;
+    }
+
     const payload = await request<{ data: ReportDetail }>("/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

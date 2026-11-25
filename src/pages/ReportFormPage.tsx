@@ -1,4 +1,4 @@
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "../components/Button";
@@ -17,6 +17,8 @@ import { CONTACT_METHODS, contactOf, REPORT_TYPES } from "../lib/options";
 import type { ReportFormErrors, ReportFormValues } from "../lib/validation";
 import {
     DESCRIPTION_LIMIT,
+    PHOTO_TYPES,
+    photoError,
     TITLE_LIMIT,
     validateReportForm,
 } from "../lib/validation";
@@ -48,9 +50,57 @@ export function ReportFormPage() {
     const [errors, setErrors] = useState<ReportFormErrors>({});
     const [serverError, setServerError] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [photo, setPhoto] = useState<File | null>(null);
+    const [photoIssue, setPhotoIssue] = useState<string | null>(null);
+    const photoInputRef = useRef<HTMLInputElement>(null);
     const [categories, setCategories] = useState<CategoryView[]>([]);
     const [locations, setLocations] = useState<LocationView[]>([]);
     const formRef = useRef<HTMLFormElement>(null);
+
+    /* Object URLs stay alive until revoked, so the preview gets one that lives
+     * exactly as long as the chosen file. */
+    const photoUrl = useMemo(
+        () => (photo ? URL.createObjectURL(photo) : ""),
+        [photo],
+    );
+
+    useEffect(
+        () => () => {
+            if (photoUrl) {
+                URL.revokeObjectURL(photoUrl);
+            }
+        },
+        [photoUrl],
+    );
+
+    function handlePhotoChange(event: ChangeEvent<HTMLInputElement>) {
+        const file = event.target.files?.[0] ?? null;
+        const issue = photoError(file);
+
+        if (issue) {
+            // Drop the rejected file so the form cannot submit it.
+            setPhoto(null);
+            setPhotoIssue(issue);
+
+            if (photoInputRef.current) {
+                photoInputRef.current.value = "";
+            }
+
+            return;
+        }
+
+        setPhoto(file);
+        setPhotoIssue(null);
+    }
+
+    function clearPhoto() {
+        setPhoto(null);
+        setPhotoIssue(null);
+
+        if (photoInputRef.current) {
+            photoInputRef.current.value = "";
+        }
+    }
 
     useEffect(() => {
         document.title = "Buat laporan · Fasilkom UI Lost & Found";
@@ -149,30 +199,41 @@ export function ReportFormPage() {
             return;
         }
 
+        const issue = photoError(photo);
+
+        if (issue) {
+            setPhotoIssue(issue);
+
+            return;
+        }
+
         setSubmitting(true);
 
         try {
-            const created = await createReport({
-                reportType: form.type,
-                itemName: form.title.trim(),
-                categoryId: selectedCategory.id,
-                categoryOther: isOtherCategory
-                    ? form.categoryOther.trim()
-                    : null,
-                description: form.description.trim(),
-                locationId: selectedLocation.id,
-                locationDetail: form.room.trim() || null,
-                occurredAt: form.date
-                    ? new Date(form.date).toISOString()
-                    : null,
-                contact: {
-                    method: form.contactMethod,
-                    value:
-                        form.contactMethod === "EMAIL"
-                            ? form.contactValue.trim()
-                            : toE164(form.contactValue),
+            const created = await createReport(
+                {
+                    reportType: form.type,
+                    itemName: form.title.trim(),
+                    categoryId: selectedCategory.id,
+                    categoryOther: isOtherCategory
+                        ? form.categoryOther.trim()
+                        : null,
+                    description: form.description.trim(),
+                    locationId: selectedLocation.id,
+                    locationDetail: form.room.trim() || null,
+                    occurredAt: form.date
+                        ? new Date(form.date).toISOString()
+                        : null,
+                    contact: {
+                        method: form.contactMethod,
+                        value:
+                            form.contactMethod === "EMAIL"
+                                ? form.contactValue.trim()
+                                : toE164(form.contactValue),
+                    },
                 },
-            });
+                photo,
+            );
 
             navigate(`/report/${encodeURIComponent(created.id)}`);
         } catch (error: unknown) {
@@ -407,6 +468,48 @@ export function ReportFormPage() {
                             }
                         />
                     </Field>
+
+                    <div className={styles.photoBox}>
+                        <label htmlFor="photo">Foto barang (opsional)</label>
+                        <p className={styles.hint}>
+                            JPEG, PNG, atau WebP, maksimal 5 MB. Satu foto per
+                            laporan.
+                        </p>
+
+                        <input
+                            ref={photoInputRef}
+                            id="photo"
+                            name="photo"
+                            type="file"
+                            accept={PHOTO_TYPES.join(",")}
+                            onChange={handlePhotoChange}
+                        />
+
+                        {photo ? (
+                            <div className={styles.photoPreview}>
+                                <img src={photoUrl} alt="Pratinjau foto" />
+                                <div>
+                                    <p className={styles.photoName}>
+                                        {photo.name}
+                                    </p>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={clearPhoto}
+                                    >
+                                        Hapus foto
+                                    </Button>
+                                </div>
+                            </div>
+                        ) : null}
+
+                        {photoIssue ? (
+                            <p className={styles.photoError} role="alert">
+                                {photoIssue}
+                            </p>
+                        ) : null}
+                    </div>
 
                     <fieldset className={styles.contactBox}>
                         <legend>Kontak publik</legend>

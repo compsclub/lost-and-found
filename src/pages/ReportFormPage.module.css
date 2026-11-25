@@ -130,6 +130,56 @@
     font-size: 0.82rem;
 }
 
+.photoBox {
+    margin-bottom: 1.1rem;
+    padding: 1rem 1.1rem;
+    border: 1.5px dashed var(--line);
+    border-radius: var(--radius);
+    background: var(--blue-50);
+}
+
+.photoBox label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: var(--blue-900);
+}
+
+.photoBox input[type="file"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    font: inherit;
+}
+
+.photoPreview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.9rem;
+    margin-top: 0.8rem;
+}
+
+.photoPreview img {
+    max-height: 160px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.photoName {
+    margin: 0 0 0.4rem;
+    font-size: 0.85rem;
+    overflow-wrap: anywhere;
+}
+
+.photoError {
+    margin: 0.6rem 0 0;
+    color: var(--red-700);
+    font-size: 0.85rem;
+}
+
 .actions {
     display: flex;
     justify-content: flex-end;

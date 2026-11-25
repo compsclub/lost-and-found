@@ -24,6 +24,36 @@ export function internalError(): ApiErrorBody {
     };
 }
 
+/** The uploaded photo exceeds the size the API accepts. */
+export function fileTooLarge(): ApiErrorBody {
+    return {
+        error: {
+            code: "FILE_TOO_LARGE",
+            message: "The photo must be at most 5 MB.",
+        },
+    };
+}
+
+/** The uploaded file is not a supported image type. */
+export function unsupportedMediaType(): ApiErrorBody {
+    return {
+        error: {
+            code: "UNSUPPORTED_MEDIA_TYPE",
+            message: "The photo must be a JPEG, PNG, or WebP image.",
+        },
+    };
+}
+
+/** Cloudinary refused the photo, so no report was created. */
+export function imageUploadFailed(): ApiErrorBody {
+    return {
+        error: {
+            code: "IMAGE_UPLOAD_FAILED",
+            message: "The photo could not be stored. Please try again.",
+        },
+    };
+}
+
 export function zodDetails(error: ZodError): FieldIssue[] {
     return error.issues.map((issue) => ({
         field: issue.path.join(".") || "body",

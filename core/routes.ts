@@ -1,7 +1,9 @@
 import type { Request, Response } from "express";
 import { Router } from "express";
 import type { ZodType } from "zod";
+import { getPhotoUploader } from "./cloudinary.js";
 import {
+    imageUploadFailed,
     internalError,
     notFound,
     validationError,
@@ -17,6 +19,7 @@ import {
     findReportPage,
 } from "./reports-repository.js";
 import type { FieldIssue } from "./types.js";
+import { photoError, uploadPhoto } from "./uploads.js";
 import {
     createReportSchema,
     listReportsQuerySchema,
@@ -114,85 +117,139 @@ apiRouter.get("/reports/:id", (request: Request, response: Response) => {
         });
 });
 
-apiRouter.post("/reports", (request: Request, response: Response) => {
-    const body = parseOrRespond(createReportSchema, request.body, response);
+/* Read the report payload from either content type. A multipart request carries
+ * the same JSON as a string in its `data` field, alongside an optional photo. */
+function readReportBody(request: Request): unknown {
+    const raw: unknown = request.body;
 
-    if (!body) {
-        return;
+    if (raw && typeof raw === "object" && "data" in raw) {
+        const data = (raw as { data?: unknown }).data;
+
+        if (typeof data === "string") {
+            try {
+                return JSON.parse(data);
+            } catch {
+                return null;
+            }
+        }
     }
 
-    Promise.all([
-        findCategoryById(body.categoryId),
-        findLocationById(body.locationId),
-    ])
-        .then(async ([category, location]) => {
-            if (!category) {
-                response
-                    .status(404)
-                    .json(
-                        notFound(
-                            "CATEGORY_NOT_FOUND",
-                            "The selected category does not exist.",
-                        ),
-                    );
+    return raw;
+}
 
-                return null;
-            }
+apiRouter.post(
+    "/reports",
+    uploadPhoto.single("photo"),
+    (request: Request, response: Response) => {
+        const body = parseOrRespond(
+            createReportSchema,
+            readReportBody(request),
+            response,
+        );
 
-            if (!location) {
-                response
-                    .status(404)
-                    .json(
-                        notFound(
-                            "LOCATION_NOT_FOUND",
-                            "The selected location does not exist.",
-                        ),
-                    );
+        if (!body) {
+            return;
+        }
 
-                return null;
-            }
+        // Checked after parsing so a rejected type is distinguishable from no photo.
+        const photoIssue = photoError(request.file);
 
-            const issues: FieldIssue[] = [];
+        if (photoIssue) {
+            response.status(photoIssue.status).json(photoIssue.body);
 
-            if (category.slug === "other" && !body.categoryOther) {
-                issues.push({
-                    field: "categoryOther",
-                    message:
-                        "Must be provided when the selected category is other.",
-                });
-            }
+            return;
+        }
 
-            if (category.slug !== "other" && body.categoryOther) {
-                issues.push({
-                    field: "categoryOther",
-                    message:
-                        "Must be null unless the selected category is other.",
-                });
-            }
+        Promise.all([
+            findCategoryById(body.categoryId),
+            findLocationById(body.locationId),
+        ])
+            .then(async ([category, location]) => {
+                if (!category) {
+                    response
+                        .status(404)
+                        .json(
+                            notFound(
+                                "CATEGORY_NOT_FOUND",
+                                "The selected category does not exist.",
+                            ),
+                        );
 
-            if (location.slug === "other" && !body.locationDetail) {
-                issues.push({
-                    field: "locationDetail",
-                    message:
-                        "Must be provided when the selected location is other.",
-                });
-            }
+                    return null;
+                }
 
-            if (issues.length > 0) {
-                response.status(400).json(validationError(issues));
+                if (!location) {
+                    response
+                        .status(404)
+                        .json(
+                            notFound(
+                                "LOCATION_NOT_FOUND",
+                                "The selected location does not exist.",
+                            ),
+                        );
 
-                return null;
-            }
+                    return null;
+                }
 
-            return createReport(body);
-        })
-        .then((report) => {
-            if (report) {
-                response.status(201).json({ data: report });
-            }
-        })
-        .catch((error: unknown) => {
-            console.error("Failed to create report", error);
-            response.status(500).json(internalError());
-        });
-});
+                const issues: FieldIssue[] = [];
+
+                if (category.slug === "other" && !body.categoryOther) {
+                    issues.push({
+                        field: "categoryOther",
+                        message:
+                            "Must be provided when the selected category is other.",
+                    });
+                }
+
+                if (category.slug !== "other" && body.categoryOther) {
+                    issues.push({
+                        field: "categoryOther",
+                        message:
+                            "Must be null unless the selected category is other.",
+                    });
+                }
+
+                if (location.slug === "other" && !body.locationDetail) {
+                    issues.push({
+                        field: "locationDetail",
+                        message:
+                            "Must be provided when the selected location is other.",
+                    });
+                }
+
+                if (issues.length > 0) {
+                    response.status(400).json(validationError(issues));
+
+                    return null;
+                }
+
+                /* Store the photo before the row so a failed upload cannot leave
+                 * a report that references an image nobody can load. */
+                if (request.file) {
+                    try {
+                        const image = await getPhotoUploader().upload(
+                            request.file.buffer,
+                        );
+
+                        return await createReport(body, image);
+                    } catch (error: unknown) {
+                        console.error("Failed to upload report photo", error);
+                        response.status(502).json(imageUploadFailed());
+
+                        return null;
+                    }
+                }
+
+                return createReport(body);
+            })
+            .then((report) => {
+                if (report) {
+                    response.status(201).json({ data: report });
+                }
+            })
+            .catch((error: unknown) => {
+                console.error("Failed to create report", error);
+                response.status(500).json(internalError());
+            });
+    },
+);

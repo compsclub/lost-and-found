@@ -40,6 +40,19 @@ Nilai di bawah diambil dari `.env`; `.env.example` sudah berisi nilai bawaan yan
 | `FRONTEND_ORIGIN` | `http://localhost:5273` | Origin yang diizinkan CORS. Beberapa origin dipisahkan koma. |
 | `PREVIEW_PORT` | `8080` | Port server build statis. |
 | `API_TARGET` | `http://127.0.0.1:3100` | Tujuan proxy `/api/v1` pada server build statis. |
+| `CLOUDINARY_URL` | - | Kredensial Cloudinary dalam satu nilai: `cloudinary://key:secret@cloud_name`. Menang atas variabel terpisah di bawah. |
+| `CLOUDINARY_CLOUD_NAME` | - | Alternatif: nama cloud Cloudinary. |
+| `CLOUDINARY_API_KEY` | - | Alternatif: API key Cloudinary; hanya dipakai di sisi server. |
+| `CLOUDINARY_API_SECRET` | - | Alternatif: API secret Cloudinary; jangan pernah dikirim ke browser. |
+| `CLOUDINARY_FOLDER` | `lost-and-found` | Folder penyimpanan foto di Cloudinary. |
+
+Cloudinary dipakai untuk menyimpan foto laporan dan hanya diakses dari backend, sehingga API secret-nya tidak pernah sampai ke browser. Paling mudah, salin **API environment variable** dari Console lalu isi key dan secret-nya:
+
+```bash
+CLOUDINARY_URL=cloudinary://<api_key>:<api_secret>@<cloud_name>
+```
+
+Tanpa kredensial, endpoint lain tetap berjalan; hanya pembuatan laporan dengan foto yang menjawab `502`.
 
 ## API
 

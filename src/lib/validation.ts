@@ -6,6 +6,12 @@ export const DESCRIPTION_LIMIT = 600;
 export const TITLE_LIMIT = 80;
 export const ROOM_LIMIT = 200;
 
+/** Mirrors the server's upload limit so the form can reject a file early. */
+export const PHOTO_LIMIT_BYTES = 5 * 1024 * 1024;
+
+/** The image types Cloudinary and the API accept. */
+export const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+
 /** The values collected by the submission form. */
 export interface ReportFormValues {
     type: ReportType;
@@ -87,4 +93,21 @@ export function validateReportForm(
     }
 
     return errors;
+}
+
+/** Returns a message when the chosen photo cannot be uploaded, else null. */
+export function photoError(file: File | null): string | null {
+    if (!file) {
+        return null;
+    }
+
+    if (!PHOTO_TYPES.includes(file.type as (typeof PHOTO_TYPES)[number])) {
+        return "Foto harus berformat JPEG, PNG, atau WebP.";
+    }
+
+    if (file.size > PHOTO_LIMIT_BYTES) {
+        return "Ukuran foto maksimal 5 MB.";
+    }
+
+    return null;
 }
